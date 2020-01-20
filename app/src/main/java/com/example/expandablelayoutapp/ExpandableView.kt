@@ -1,19 +1,29 @@
 package com.example.expandablelayoutapp
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
+
 
 class ExpandableView constructor(
     context: Context,
     attr: AttributeSet): LinearLayout(context, attr) {
 
-    var isExpandable: Boolean = false
+    private var isExpandable: Boolean = false
+    private var count: Int = 0
+    private var countChildView: Int = 0
+
+    private var mLeftWidth: Int? = null
+    private var mRightWidth: Int? = null
+
+    private lateinit var mTempRectView: Rect
 
     init{
         isClickable = true
@@ -27,17 +37,54 @@ class ExpandableView constructor(
         }
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        this.rootView.bringToFront() // does't work
+    }
+
+    override fun addView(child: View?) {
+        child?.hasNestedScrollingParent()
+        super.addView(child)
+    }
+
     override fun performClick(): Boolean {
         if(super.performClick()) return true
-        this.rootView.alpha = 1.0.toFloat()
+        initClickAction()
+        return true
+    }
+
+    override fun shouldDelayChildPressedState(): Boolean = SHOULD_DELAY_CHILD
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        val childCount = childCount
+        val childContainerWidth = right- left
+        for(i in 0..childCount){
+            countChildView = i
+            val childView: View? = getChildAt(i)
+            childView?.layout(1, 1, childContainerWidth, childContainerWidth)
+            Log.i("TEST", "CHILD COUNT IS: $countChildView")
+        }
+        super.onLayout(changed, left, top, right, bottom)
+    }
+
+    private fun layoutVisibility(){
+        this.visibility = if(!isExpandable) View.GONE else View.VISIBLE
+    }
+
+    private fun initClickAction(){
+        this.alpha = 1.0.toFloat()
         val animator = getObjectAnimator()
         animator.interpolator = AccelerateDecelerateInterpolator()
         animator.duration = 1000
         animator.start()
         isExpandable = !isExpandable
-        return true
     }
 
+    //TODO - change rootView target to ExpandableView target only
     private fun getObjectAnimator(): ObjectAnimator {
         if(isExpandable){
             Log.i("TEST", "Expandable Clicked " + isExpandable)
@@ -45,14 +92,32 @@ class ExpandableView constructor(
                 this.rootView,
                 View.TRANSLATION_Y,
                 0f,
-                -this.rootView!!.rootView.height.toFloat())
+                -this.rootView.height.toFloat())
         }else{
             Log.i("TEST", "Expandable Clicked " + isExpandable)
             return ObjectAnimator.ofFloat(
                 this.rootView,
                 View.TRANSLATION_Y,
-                -this.rootView!!.rootView.height.toFloat(),
+                -this.rootView.height.toFloat(),
                 0f)
         }
+    }
+
+    private fun ObjectAnimator.enableClick(initClick: () -> Unit){
+        addListener(object : AnimatorListenerAdapter(){
+            override fun onAnimationEnd(animation: Animator?) {
+                super.onAnimationEnd(animation)
+                count++
+            }
+        })
+    }
+
+    private fun setCount(){
+        count++
+        Log.i("TEST", "CLICK COUNT: $count")
+    }
+
+    companion object{
+        const val SHOULD_DELAY_CHILD = true
     }
 }
