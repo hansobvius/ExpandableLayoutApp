@@ -8,8 +8,11 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
+import android.widget.ScrollView
+import kotlinx.android.synthetic.main.activity_main.view.*
 
 
 class ExpandableView constructor(
@@ -17,13 +20,9 @@ class ExpandableView constructor(
     attr: AttributeSet): LinearLayout(context, attr) {
 
     private var isExpandable: Boolean = false
+    private var enableExpandLayout: Boolean = true
     private var count: Int = 0
     private var countChildView: Int = 0
-
-    private var mLeftWidth: Int? = null
-    private var mRightWidth: Int? = null
-
-    private lateinit var mTempRectView: Rect
 
     init{
         isClickable = true
@@ -103,11 +102,13 @@ class ExpandableView constructor(
         }
     }
 
-    private fun ObjectAnimator.enableClick(initClick: () -> Unit){
+    private fun ObjectAnimator.enableClick(){
         addListener(object : AnimatorListenerAdapter(){
             override fun onAnimationEnd(animation: Animator?) {
                 super.onAnimationEnd(animation)
-                count++
+                if(enableExpandLayout){
+                    animation?.start()
+                }
             }
         })
     }
