@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import androidx.core.view.marginBottom
 import kotlinx.android.synthetic.main.activity_main.view.*
 
 
@@ -34,11 +35,7 @@ class ExpandableView constructor(
         ).apply {
             recycle()
         }
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        this.rootView.bringToFront() // does't work
+        this.visibility = View.GONE
     }
 
     override fun addView(child: View?) {
@@ -46,16 +43,11 @@ class ExpandableView constructor(
         super.addView(child)
     }
 
-    override fun performClick(): Boolean {
-        if(super.performClick()) return true
-        initClickAction()
-        return true
-    }
-
     override fun shouldDelayChildPressedState(): Boolean = SHOULD_DELAY_CHILD
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        setMeasuredDimension(widthMeasureSpec, heightMeasureSpec)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -71,31 +63,32 @@ class ExpandableView constructor(
     }
 
     private fun layoutVisibility(){
-        this.visibility = if(!isExpandable) View.GONE else View.VISIBLE
+        this.visibility = View.VISIBLE
     }
 
-    private fun initClickAction(){
+    fun initClickAction(){
+        layoutVisibility()
         this.alpha = 1.0.toFloat()
         val animator = getObjectAnimator()
         animator.apply{
             interpolator = AccelerateDecelerateInterpolator()
             duration = 1000
-            start()
+            expandLayout()
+        }.also{
+            Log.i("LOG_DEBUG", "layout expandable value: $isExpandable")
         }
-        isExpandable = !isExpandable
     }
 
-    //TODO - change rootView target to ExpandableView target only
     private fun getObjectAnimator(): ObjectAnimator =
         if(isExpandable){
             ObjectAnimator.ofFloat(
-                this.rootView,
+                this,
                 View.TRANSLATION_Y,
                 0f,
                 -this.rootView.height.toFloat())
         }else{
             ObjectAnimator.ofFloat(
-                this.rootView,
+                this,
                 View.TRANSLATION_Y,
                 -this.rootView.height.toFloat(),
                 0f)
@@ -112,9 +105,9 @@ class ExpandableView constructor(
         })
     }
 
-    private fun setCount(){
-        count++
-        Log.i("TEST", "CLICK COUNT: $count")
+    private fun ObjectAnimator.expandLayout(){
+        start()
+        isExpandable = !isExpandable
     }
 
     companion object{

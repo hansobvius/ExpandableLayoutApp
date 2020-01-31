@@ -9,45 +9,33 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
-<!--        <FrameLayout-->
-<!--            android:id="@+id/frame_layout"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent">-->
+        <FrameLayout
+            android:id="@+id/frame_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFF"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-<!--            <TextView-->
-<!--                android:id="@+id/action_view"-->
-<!--                android:text="@string/action_text"-->
-<!--                android:padding="20dp"-->
-<!--                android:textSize="16sp"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"/>-->
-<!--        </FrameLayout>-->
+            <TextView
+                android:id="@+id/action_view"
+                android:text="@string/action_text"
+                android:padding="20dp"
+                android:textSize="16sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </FrameLayout>
 
         <com.example.expandablelayoutapp.ExpandableView
+            android:id="@+id/expandable_layout"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="parent">
-
-            <FrameLayout
-                android:id="@+id/frame_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/action_view"
-                    android:text="@string/action_text"
-                    android:padding="20dp"
-                    android:textSize="16sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@+id/frame_layout">
 
             <include
                 layout="@layout/list_layout"
