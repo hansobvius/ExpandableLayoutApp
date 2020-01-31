@@ -77,30 +77,29 @@ class ExpandableView constructor(
     private fun initClickAction(){
         this.alpha = 1.0.toFloat()
         val animator = getObjectAnimator()
-        animator.interpolator = AccelerateDecelerateInterpolator()
-        animator.duration = 1000
-        animator.start()
+        animator.apply{
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = 1000
+            start()
+        }
         isExpandable = !isExpandable
     }
 
     //TODO - change rootView target to ExpandableView target only
-    private fun getObjectAnimator(): ObjectAnimator {
+    private fun getObjectAnimator(): ObjectAnimator =
         if(isExpandable){
-            Log.i("TEST", "Expandable Clicked " + isExpandable)
-            return ObjectAnimator.ofFloat(
+            ObjectAnimator.ofFloat(
                 this.rootView,
                 View.TRANSLATION_Y,
                 0f,
                 -this.rootView.height.toFloat())
         }else{
-            Log.i("TEST", "Expandable Clicked " + isExpandable)
-            return ObjectAnimator.ofFloat(
+            ObjectAnimator.ofFloat(
                 this.rootView,
                 View.TRANSLATION_Y,
                 -this.rootView.height.toFloat(),
                 0f)
         }
-    }
 
     private fun ObjectAnimator.enableClick(){
         addListener(object : AnimatorListenerAdapter(){

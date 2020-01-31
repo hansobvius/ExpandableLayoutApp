@@ -20,13 +20,16 @@ class ExpandableLayout: View.OnClickListener {
 
     var isExpandable: Boolean = false
 
-    override fun onClick(v: View?) {
+    override fun onClick(view: View?) {
         view!!.alpha =1.0.toFloat()
         animator = getObjectAnimator()
-        animator.interpolator = AccelerateDecelerateInterpolator()
-        animator.duration = 1000
-        animator.start()
-        isExpandable = !isExpandable
+        animator.apply{
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = 1000
+            expandAction(view)
+            start()
+        }
+//        isExpandable = !isExpandable
     }
 
     private fun getObjectAnimator(): ObjectAnimator {
@@ -45,16 +48,16 @@ class ExpandableLayout: View.OnClickListener {
         }
     }
 
-    fun expandAction(view: View){
-        this.animator.addListener(object : AnimatorListenerAdapter(){
+    fun ObjectAnimator.expandAction(view: View?){
+        addListener(object : AnimatorListenerAdapter(){
             override fun onAnimationEnd(animation: Animator?) {
                 super.onAnimationEnd(animation)
-                view.isEnabled = true
+                view!!.isEnabled = true
             }
 
             override fun onAnimationStart(animation: Animator?) {
                 super.onAnimationStart(animation)
-                view.isEnabled = false
+                view!!.isEnabled = false
             }
         })
     }
