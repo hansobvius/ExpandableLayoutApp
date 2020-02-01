@@ -22,7 +22,6 @@ class ExpandableView constructor(
 
     private var isExpandable: Boolean = false
     private var enableExpandLayout: Boolean = true
-    private var count: Int = 0
     private var countChildView: Int = 0
 
     init{
@@ -52,7 +51,7 @@ class ExpandableView constructor(
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         val childCount = childCount
-        val childContainerWidth = right- left
+        val childContainerWidth = right - left
         for(i in 0..childCount){
             countChildView = i
             val childView: View? = getChildAt(i)
@@ -68,11 +67,11 @@ class ExpandableView constructor(
 
     fun initClickAction(){
         layoutVisibility()
-        this.alpha = 1.0.toFloat()
         val animator = getObjectAnimator()
         animator.apply{
             interpolator = AccelerateDecelerateInterpolator()
             duration = 1000
+            enableClick()
             expandLayout()
         }.also{
             Log.i("LOG_DEBUG", "layout expandable value: $isExpandable")
@@ -98,15 +97,17 @@ class ExpandableView constructor(
         addListener(object : AnimatorListenerAdapter(){
             override fun onAnimationEnd(animation: Animator?) {
                 super.onAnimationEnd(animation)
-                if(enableExpandLayout){
-                    animation?.start()
-                }
+                enableExpandLayout = true
+            }
+            override fun onAnimationStart(animation: Animator?) {
+                super.onAnimationStart(animation)
+                enableExpandLayout = false
             }
         })
     }
 
     private fun ObjectAnimator.expandLayout(){
-        start()
+        if(enableExpandLayout)start()
         isExpandable = !isExpandable
     }
 
