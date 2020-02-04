@@ -1,30 +1,31 @@
-package com.example.expandablelayoutapp
+package com.example.expandablelayoutapp.lib
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
+import android.app.Activity
 import android.content.Context
-import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
-import android.widget.ScrollView
-import androidx.core.view.marginBottom
-import kotlinx.android.synthetic.main.activity_main.view.*
-
+import com.example.expandablelayoutapp.R
 
 class ExpandableView constructor(
     context: Context,
     attr: AttributeSet): LinearLayout(context, attr) {
 
-    private var isExpandable: Boolean = false
-    private var enableExpandLayout: Boolean = true
+    private var isExpandable: Boolean =
+        INITIAL_EXPANDABLE_LAYOUT_VALUE
+
+    private var enableExpandLayout: Boolean =
+        INITIAL_CLICK_ENABLED_VALUE
+
+    private var nestedViewValue: Int =
+        INITIAL_CHILD_VIEW_VALUE
 
     init{
-        isClickable = true
         context.theme.obtainStyledAttributes(
             attr,
             R.styleable.ExpandableView,
@@ -33,7 +34,9 @@ class ExpandableView constructor(
         ).apply {
             recycle()
         }
+        val view = this.rootView.height
         this.visibility = View.GONE
+        Log.i("TEST", "Height: $view")
     }
 
     override fun addView(child: View?) {
@@ -43,19 +46,36 @@ class ExpandableView constructor(
 
     override fun shouldDelayChildPressedState(): Boolean = SHOULD_DELAY_CHILD
 
+//    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+//        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+//        setMeasuredDimension(widthMeasureSpec, heightMeasureSpec)
+//    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        setMeasuredDimension(widthMeasureSpec, heightMeasureSpec)
+        val childCount = childCount
+        val viewHeightSize = this.rootView.height
+        val viewWidthSize = this.rootView.width
+        for(i in 0..childCount){
+            val childView: View? = getChildAt(i)
+            if(childView != null) nestedViewValue += childView.height
+        }
+        if(this.orientation == LinearLayout.VERTICAL){
+            setMeasuredDimension(widthMeasureSpec, viewHeightSize)
+        }else{
+            setMeasuredDimension(viewWidthSize, heightMeasureSpec)
+        }
+        Log.i("TEST", "Nested Child Value: $nestedViewValue")
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
         val childCount = childCount
         val childContainerWidth = right - left
         for(i in 0..childCount){
             val childView: View? = getChildAt(i)
             childView?.layout(1, 1, childContainerWidth, childContainerWidth)
         }
-        super.onLayout(changed, left, top, right, bottom)
     }
 
     private fun layoutVisibility(){
@@ -81,33 +101,38 @@ class ExpandableView constructor(
                 this,
                 View.TRANSLATION_Y,
                 0f,
-                -this.rootView.height.toFloat())
+                - this.rootView.height.toFloat()
+            )
         }else{
             ObjectAnimator.ofFloat(
                 this,
                 View.TRANSLATION_Y,
-                -this.rootView.height.toFloat(),
-                0f)
+                - this.rootView.height.toFloat(),
+                0f
+            )
         }
 
     private fun ObjectAnimator.enableClick(){
         addListener(object : AnimatorListenerAdapter(){
             override fun onAnimationEnd(animation: Animator?) {
                 super.onAnimationEnd(animation)
-                enableExpandLayout = true
+                enableExpandLayout = !enableExpandLayout
             }
         })
     }
 
     private fun ObjectAnimator.expandLayout(){
         if(enableExpandLayout){
-            enableExpandLayout = false
+            enableExpandLayout = !enableExpandLayout
             isExpandable = !isExpandable
             start()
         }
     }
 
     companion object{
-        const val SHOULD_DELAY_CHILD = true
+        private const val SHOULD_DELAY_CHILD = true
+        private const val INITIAL_EXPANDABLE_LAYOUT_VALUE = false
+        private const val INITIAL_CLICK_ENABLED_VALUE = true
+        private const val INITIAL_CHILD_VIEW_VALUE = 0
     }
 }
