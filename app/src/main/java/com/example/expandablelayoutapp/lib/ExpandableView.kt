@@ -58,12 +58,15 @@ class ExpandableView constructor(
         val viewWidthSize = this.rootView.width
         for(i in 0..childCount){
             val childView: View? = getChildAt(i)
-            if(childView != null) nestedViewValue += childView.height
+//            if(childView != null) nestedViewValue += childView.height
+            childView?.let{
+                nestedViewValue += childView.height
+            }
         }
         if(this.orientation == LinearLayout.VERTICAL){
-            setMeasuredDimension(widthMeasureSpec, viewHeightSize)
+            setMeasuredDimension(viewWidthSize, viewHeightSize)
         }else{
-            setMeasuredDimension(viewWidthSize, heightMeasureSpec)
+            setMeasuredDimension(viewWidthSize, viewHeightSize)
         }
         Log.i("TEST", "Nested Child Value: $nestedViewValue")
     }
